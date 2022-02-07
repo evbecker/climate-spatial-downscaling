@@ -8,10 +8,10 @@ This code is taken from https://github.com/bgroenks96/generative-downscaling
 """
 
 def plot_image(X):
-    X = num_to_nan(X, lo_thresh=50.0)
-    X_min, X_max = 240, 330
+    # X = num_to_nan(X, lo_thresh=50.0)
+    # X_min, X_max = 240, 330
     img = plt.imshow(X.squeeze(), origin='lower', cmap='gist_ncar')
-    img.set_clim(vmin=X_min, vmax=X_max)
+    # img.set_clim(vmin=X_min, vmax=X_max)
     plt.colorbar(fraction=0.025, pad=0.05)
 
 def plot_image_map(X, lats, lons, cmap="viridis", figsize=(6,4), title='', min_max=None,  bins=100, gridlines=False):

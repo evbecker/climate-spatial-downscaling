@@ -1,31 +1,38 @@
 import os
-import netCDF4 as nc
 import torch
-import matplotlib.pyplot as plt
-from plot import plot_image_map
+from torch.utils.data import Dataset
+import pandas as pd
+import numpy as np
 
-"""
-TODO: looks like missing data, scaling needs to be handled first
-TODO: need to upscale images to match NF paper (seems like torch 
-	  may have a built-in method for this)
 
-"""
+class EraiCpcDataset(Dataset):
 
-def test_erai_data(file='./jan18-temps.nc'):
-	data = nc.Dataset(file)
-	lat = data['latitude'][:]
-	lon = data['longitude'][:]
-	plot_image_map(temp[0,:,:], lat, lon)
-	plt.show()
+    def __init__(self, csv_path, img_path):
+        self.csv_path = csv_path
+        self.img_path = img_path
+        # Read the csv file
+        self.data_info = pd.read_csv(csv_path, header=0)
+        # Get list of image names from csv
+        self.erai = np.asarray(self.data_info.iloc[0])
+        self.cpc = np.asarray(self.data_info.iloc[1])
+        # length is number of time samples
+        self.data_len = len(self.erai)
 
-def erai_to_torch_tensors(file='./jan18-temps.nc', out_dir= './data', var_name='mx2t', region=''):
-	# assuming netcdf file has latitude, longitude, time, and var_name
-	# converts image at each timepoint to a tensor
-	data = nc.Dataset(file)
-	lat = data['latitude'][:]
-	lon = data['longitude'][:]
-	time = data['time'][:]
-	var = data[var_name][:]
-	for i, t in enumerate(time):
-		out_path = os.path.join(out_dir, f'erai{region}-{var_name}-{t}.pt')
-		torch.save(torch.tensor(var[i,:,:]), out_path) 
+    def __getitem__(self, index):
+        # for index corresponding to time t, returns high and low
+        # resolution images for that time, as well as high res
+        # at the previous timestep
+        lr_img = torch.load(os.path.join(self.img_path, self.erai[index]))
+        hr_img = torch.load(os.path.join(self.img_path, self.cpc[index]))
+        prev_index = (index - 1)%self.data_len
+        prev_hr_img = torch.load(os.path.join(self.img_path, self.cpc[prev_index]))
+
+        return (hr_img, lr_img, prev_hr_img)
+
+    def __len__(self):
+        return self.data_len
+
+if __name__ == "__main__":
+    # just testing that we return three tensor images for a given index
+    myData =  EraiCpcDataset('./tensordata/nwus-2000-01-01.csv', './tensordata')
+    print(myData.__getitem__(10))
