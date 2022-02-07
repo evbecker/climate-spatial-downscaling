@@ -26,7 +26,7 @@ class EraiCpcDataset(Dataset):
         hr_img = torch.load(os.path.join(self.img_path, self.cpc[index]))
         prev_index = (index - 1)%self.data_len
         prev_hr_img = torch.load(os.path.join(self.img_path, self.cpc[prev_index]))
-
+        print(self.erai[index])
         return (hr_img, lr_img, prev_hr_img)
 
     def __len__(self):
@@ -34,5 +34,6 @@ class EraiCpcDataset(Dataset):
 
 if __name__ == "__main__":
     # just testing that we return three tensor images for a given index
+    print(torch.load('./tensordata/erai-nwus-precip-2000-01-02.pt'))
     myData =  EraiCpcDataset('./tensordata/nwus-2000-01-01.csv', './tensordata')
-    print(myData.__getitem__(10))
+    print(myData.__getitem__(9))
