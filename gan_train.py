@@ -81,14 +81,14 @@ def g_rec_loss(fake, real):
 
 batch_size=8
 style_dim=512
-myData =  EraiCpcDataset('./tensordata/nwus-2000-01-01.csv', './tensordata')
+myData =  EraiCpcDataset('./tensordata')
 val_data=Subset(myData,range(40))
 test_data=Subset(myData,range(41,80))
 train_data=Subset(myData,range(81,365))
 train_loader=torch.utils.data.DataLoader(train_data,batch_size=batch_size,shuffle=True,num_workers=1,pin_memory=True,sampler=None,drop_last=True)
 val_loader=torch.utils.data.DataLoader(val_data,batch_size=1,shuffle=True,num_workers=1,pin_memory=True,sampler=None,drop_last=True)
 test_loader=torch.utils.data.DataLoader(test_data,batch_size=1,shuffle=True,num_workers=1,pin_memory=True,sampler=None,drop_last=True)
-network_g=Generator(size1=40,size2=40,style_dim=style_dim)
+network_g=Generator(size1=40,size2=40,style_dim=style_dim,coord_size=4)
 #network=AE(input_channels=1,num_layers=3,base_num=16)
 network_g=network_g.to(device)
 network_d=Discriminator(size1=40,size2=40)
