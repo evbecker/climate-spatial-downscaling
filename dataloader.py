@@ -78,7 +78,7 @@ def next_date(date):
 
 class EraiCpcDataset(Dataset):
 
-    def __init__(self, img_path):
+    def __init__(self, img_path,mode='train'):
         #self.csv_path = csv_path
         self.img_path = img_path
         # Read the csv file
@@ -87,16 +87,40 @@ class EraiCpcDataset(Dataset):
         #self.erai = np.asarray(self.data_info.iloc[0])
         self.erai=[]
         self.cpc=[]
-        date='2000-01-01'
-        while os.path.exists(img_path+'/erai-nwus-precip-'+date+'.pt') and os.path.exists(img_path+'/cpc-nwus-precip-'+date+'.pt'):
-            self.erai.append('erai-nwus-precip-'+date+'.pt')
-            self.cpc.append('cpc-nwus-precip-'+date+'.pt')
-            date=next_date(date)
+        self.regions=[]
+        self.elevation={}
+        self.latitude={}
+        self.longitude={}
+        for r in ['neus','nwus','seus','swus']:
+            if mode=='train':
+                date='2002-01-01'
+                end_date='3000-01-01'
+            elif mode=='val':
+                date='2001-01-01'
+                end_date='2002-01-01'
+            elif mode=='test':
+                date='2000-01-01'
+                end_date='2001-01-01'
+            while os.path.exists(img_path+'/erai-'+r+'-precip-'+date+'.pt') and os.path.exists(img_path+'/cpc-'+r+'-precip-'+date+'.pt') and date!=end_date:
+                self.erai.append('erai-'+r+'-precip-'+date+'.pt')
+                self.cpc.append('cpc-'+r+'-precip-'+date+'.pt')
+                self.regions.append(r)
+                date=next_date(date)
+            self.elevation[r]=torch.load(img_path+'/'+r+'-elevation-40x40.pt')
+        self.latitude['nwus']=torch.linspace(38,48,40).unsqueeze(1)
+        self.longitude['nwus']=torch.linspace(238,248,40).unsqueeze(0)
+        self.latitude['seus']=torch.linspace(28,38,40).unsqueeze(1)
+        self.longitude['seus']=torch.linspace(268,278,40).unsqueeze(0)
+        self.latitude['neus']=torch.linspace(35,45,40).unsqueeze(1)
+        self.longitude['neus']=torch.linspace(273,283,40).unsqueeze(0)
+        self.latitude['swus']=torch.linspace(32,42,40).unsqueeze(1)
+        self.longitude['swus']=torch.linspace(242,252,40).unsqueeze(0)
+
+
 
         #self.cpc = np.asarray(self.data_info.iloc[1])
         # length is number of time samples
         self.data_len = len(self.erai)
-        self.elevation=torch.load(img_path+'/nwus-elevation-40x40.pt')
 
     def __getitem__(self, index):
         # for index corresponding to time t, returns high and low
@@ -107,14 +131,13 @@ class EraiCpcDataset(Dataset):
         prev_index = (index - 1)%self.data_len
         prev_hr_img = torch.load(os.path.join(self.img_path, self.cpc[prev_index])).unsqueeze(0)
         coord=torch.zeros((4,lr_img.size(1),lr_img.size(2)))
+        r=self.regions[index]
         coord[3,:,:]=date_converter(self.erai[index][-13:-3])
-        lat=torch.linspace(38,48,lr_img.size(0)).unsqueeze(1)
-        lon=torch.linspace(238,248,lr_img.size(1)).unsqueeze(0)
-        coord[0,:,:]=lat
-        coord[1,:,:]=lon
-        coord[2,:,:]=self.elevation
+        coord[0,:,:]=self.latitude[r]
+        coord[1,:,:]=self.longitude[r]
+        coord[2,:,:]=self.elevation[r]
         #print(self.erai[index][-13:-3])
-        return {'hr_img':hr_img,'lr_img':lr_img,'prev_hr_img':prev_hr_img,'coord':coord}
+        return {'hr_img':hr_img,'lr_img':lr_img,'prev_hr_img':prev_hr_img,'coord':coord,'name':self.cpc[index],'region':r}
 
     def __len__(self):
         return self.data_len
@@ -122,5 +145,5 @@ class EraiCpcDataset(Dataset):
 if __name__ == "__main__":
     # just testing that we return three tensor images for a given index
     #print(torch.load('./tensordata/erai-nwus-precip-2000-01-02.pt'))
-    myData =  EraiCpcDataset('./tensordata')
-    print(myData.__getitem__(9)[0].size())
+    myData =  EraiCpcDataset('./tensordata','test')
+    print(len(myData))
