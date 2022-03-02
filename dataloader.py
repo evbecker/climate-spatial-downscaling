@@ -132,10 +132,10 @@ class EraiCpcDataset(Dataset):
         prev_hr_img = torch.load(os.path.join(self.img_path, self.cpc[prev_index])).unsqueeze(0)
         coord=torch.zeros((4,lr_img.size(1),lr_img.size(2)))
         r=self.regions[index]
-        coord[3,:,:]=date_converter(self.erai[index][-13:-3])
-        coord[0,:,:]=self.latitude[r]
-        coord[1,:,:]=self.longitude[r]
-        coord[2,:,:]=self.elevation[r]
+        coord[0,:,:]=date_converter(self.erai[index][-13:-3])
+        coord[1,:,:]=self.latitude[r]
+        coord[2,:,:]=self.longitude[r]
+        coord[3,:,:]=self.elevation[r]
         #print(self.erai[index][-13:-3])
         return {'hr_img':hr_img,'lr_img':lr_img,'prev_hr_img':prev_hr_img,'coord':coord,'name':self.cpc[index],'region':r}
 
