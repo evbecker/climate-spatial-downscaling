@@ -8,7 +8,7 @@ def RMSE(pred,target):
 def PCorrelation(pred,target):
     m_p=np.mean(pred)
     m_t=np.mean(target)
-    return np.sum((pred-m_p)*(target-m_t))/(np.sqrt(np.sum((pred-m_p)**2))*np.sqrt(np.sum((target-m_t)**2)))
+    return np.sum((pred-m_p)*(target-m_t))/(np.sqrt(np.sum((pred-m_p)**2))*np.sqrt(np.sum((target-m_t)**2))+0.00001)
 
 def max_per_init(regions=['nwus','neus','seus','swus'],years=1):
     dic_pred=np.zeros((len(regions),years,12,31))

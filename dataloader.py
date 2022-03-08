@@ -155,8 +155,94 @@ class EraiCpcDataset(Dataset):
     def __len__(self):
         return self.data_len
 
+
+
+
+
+class EraiCpcWrfDataset(Dataset):
+
+    def __init__(self, img_path,mode='train'):
+        #self.csv_path = csv_path
+        self.img_path = img_path
+        # Read the csv file
+        #self.data_info = pd.read_csv(csv_path, header=0)
+        # Get list of image names from csv
+        #self.erai = np.asarray(self.data_info.iloc[0])
+        self.erai=[]
+        self.cpc=[]
+        self.wrf=[]
+        self.regions=[]
+        self.elevation={}
+        self.latitude={}
+        self.longitude={}
+        if mode!='new_test':
+            for r in ['neus','nwus','seus','swus']:
+                if mode=='train':
+                    date='2003-01-01'
+                    end_date='3000-01-01'
+                elif mode=='val':
+                    date='2002-01-01'
+                    end_date='2003-01-01'
+                elif mode=='test':
+                    date='2001-01-01'
+                    end_date='2002-01-01'
+                while os.path.exists(img_path+'/erai-'+r+'-precip-'+date+'.pt') and os.path.exists(img_path+'/cpc-'+r+'-precip-'+date+'.pt') and os.path.exists(img_path+'/wrf-'+r+'-precip-'+date+'.pt') and date!=end_date:
+                    self.erai.append('erai-'+r+'-precip-'+date+'.pt')
+                    self.cpc.append('cpc-'+r+'-precip-'+date+'.pt')
+                    self.wrf.append('wrf-'+r+'-precip-'+date+'.pt')
+                    self.regions.append(r)
+                    date=next_date(date)
+                self.elevation[r]=torch.load(img_path+'/'+r+'-elevation-160x160.pt')
+            self.latitude['nwus']=torch.linspace(38,48,160).unsqueeze(1)
+            self.longitude['nwus']=torch.linspace(238,248,160).unsqueeze(0)
+            self.latitude['seus']=torch.linspace(28,38,160).unsqueeze(1)
+            self.longitude['seus']=torch.linspace(268,278,160).unsqueeze(0)
+            self.latitude['neus']=torch.linspace(35,45,160).unsqueeze(1)
+            self.longitude['neus']=torch.linspace(273,283,160).unsqueeze(0)
+            self.latitude['swus']=torch.linspace(32,42,160).unsqueeze(1)
+            self.longitude['swus']=torch.linspace(242,252,160).unsqueeze(0)
+        else:
+            date='2000-01-01'
+            end_date='3000-01-01'
+            r='mwus'
+            while os.path.exists(img_path+'/erai-'+r+'-precip-'+date+'.pt') and os.path.exists(img_path+'/cpc-'+r+'-precip-'+date+'.pt') and date!=end_date:
+                self.erai.append('erai-'+r+'-precip-'+date+'.pt')
+                self.cpc.append('cpc-'+r+'-precip-'+date+'.pt')
+                self.regions.append(r)
+                date=next_date(date)
+            self.elevation[r]=torch.load(img_path+'/'+r+'-elevation-160x160.pt')
+            self.latitude['mwus']=torch.linspace(35,45,160).unsqueeze(1)
+            self.longitude['mwus']=torch.linspace(255,265,160).unsqueeze(0)
+
+
+
+        #self.cpc = np.asarray(self.data_info.iloc[1])
+        # length is number of time samples
+        self.data_len = len(self.erai)
+
+    def __getitem__(self, index):
+        # for index corresponding to time t, returns high and low
+        # resolution images for that time, as well as high res
+        # at the previous timestep
+        slr_img = torch.load(os.path.join(self.img_path, self.erai[index])).unsqueeze(0)
+        lr_img = torch.load(os.path.join(self.img_path, self.cpc[index])).unsqueeze(0)
+        hr_img=torch.load(os.path.join(self.img_path, self.wrf[index])).unsqueeze(0)
+        prev_index = (index - 1)%self.data_len
+        prev_hr_img = torch.load(os.path.join(self.img_path, self.wrf[prev_index])).unsqueeze(0)
+        coord=torch.zeros((4,lr_img.size(1),lr_img.size(2)))
+        r=self.regions[index]
+        coord[0,:,:]=date_converter(self.erai[index][-13:-3])
+        coord[1,:,:]=self.latitude[r]
+        coord[2,:,:]=self.longitude[r]
+        coord[3,:,:]=self.elevation[r]
+        #print(self.erai[index][-13:-3])
+        return {'hr_img':hr_img,'lr_img':lr_img,'prev_hr_img':prev_hr_img,'coord':coord,'name':self.cpc[index],'region':r,'slr_img':slr_img}
+
+    def __len__(self):
+        return self.data_len
+
 if __name__ == "__main__":
     # just testing that we return three tensor images for a given index
     #print(torch.load('./tensordata/erai-nwus-precip-2000-01-02.pt'))
-    myData =  EraiCpcDataset('./tensordata','test')
+    myData =  EraiCpcWrfDataset('./tensordata-precip-160','test')
     print(myData.__getitem__(0)['name'])
