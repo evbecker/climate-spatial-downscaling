@@ -79,7 +79,7 @@ for i in [0.01,0.02,0.05,0.1,0.2,0.5,1,2,5,10]:
     evaluate('ours','generator'+str(i)+'.pt')
     evaluate('EAD','generator'+str(i)+'_.pt')
 '''
-evaluate('AE','autoencoder_ae.pt')
+#evaluate('AE','autoencoder_ae.pt')
 evaluate('naive','autoencoder_naive.pt')
 
 
