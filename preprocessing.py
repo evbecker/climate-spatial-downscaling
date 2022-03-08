@@ -13,8 +13,10 @@ TODO: erai data on first and last days of month only have 12 hr totals
 """
 MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul','aug', 'sep', 'oct', 'nov', 'dec']
 YEARS = ['2000', '2001', '2002', '2003', '2004', '2005', '2006']
+QUARTERS = [('01','03'), ('04','06'), ('07','09'), ('10','12')]
 REGION_COORDS = {'nwus':([38,48],[238,248]), 'seus':([28,38], [268,278]), 
-				 'neus':([35,45], [273,283]), 'swus':([32,42], [242,252])}
+				 'neus':([35,45], [273,283]), 'swus':([32,42], [242,252]),
+				 'mwus':([35,45],[255, 265])}
 
 # returns only values corresponding to coords within given limits
 def crop_to_region(data, lat_range, lon_range):
@@ -158,16 +160,23 @@ def make_precip_csv(sdate, edate, erai_cpc=False, erai_wrf=False, cpc_wrf=False,
 
 if __name__ == "__main__":
 	var = 'precip'
-	steps = 40
-	regions = ['nwus','neus','swus', 'seus']
+	steps = 160
+	regions = ['nwus', 'swus', 'mwus', 'neus', 'seus']
 
-	# wrf_precip_to_torch_tensors(file='./ncdata/wrf-200310-200312-precip.nc', out_dir='./tensordata100')
+	for region in regions:
+		for year in YEARS[1:]:
+			for quarter in QUARTERS:
+				date_range=f'{year}{quarter[0]}-{year}{quarter[1]}'
+				wrf_precip_to_torch_tensors(file=f'./ncdata/wrf-{date_range}-{var}.nc', 
+											out_dir=f'./tensordata-{var}-{steps}',
+											region=region, steps=steps)
 
-	# for year in YEARS:
-	# 	erai_to_torch_tensors(file=f'./ncdata/erai-{year}-{var}.nc', out_dir=f'./tensordata-{var}-{steps}', 
-	# 						  var=var, steps=steps, region=region)
-	# 	cpc_precip_to_torch_tensors(file = f'./ncdata/cpc-{year}-precip.nc', out_dir=f'./tensordata-{var}-{steps}', 
-	# 								steps=40, region=region)
+	for region in regions:
+		for year in YEARS:
+			erai_to_torch_tensors(file=f'./ncdata/erai-{year}-{var}.nc', out_dir=f'./tensordata-{var}-{steps}', 
+								  var=var, steps=steps, region=region)
+			cpc_precip_to_torch_tensors(file = f'./ncdata/cpc-{year}-precip.nc', out_dir=f'./tensordata-{var}-{steps}', 
+										steps=steps, region=region)
 	
-	make_precip_csv(sdate=date(2000,1,1), edate=date(2006,12,31), erai_cpc=True, 
-					regions=regions, out_dir=f'./tensordata-{var}-{steps}')
+	# make_precip_csv(sdate=date(2000,1,1), edate=date(2006,12,31), erai_cpc=True, 
+					# regions=regions, out_dir=f'./tensordata-{var}-{steps}')

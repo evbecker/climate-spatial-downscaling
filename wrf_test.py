@@ -35,6 +35,7 @@ def wrf_interpolate(data, lat_range, lon_range, steps, method="nearest"):
 def wrf_time_downsample(infile='./ncdata/wrf-200010-200012-precip-raw.nc', var_name='PREC_ACC_NC', 
 				   		time='24H', method='sum', outfile= './ncdata/wrf-200010-200012-precip.nc'):
 	wrf_data = xr.open_dataset(infile)
+	print(wrf_data)
 	wrf_var = wrf_data[var_name]
 	if method=='sum':
 		wrf_var = wrf_var.resample(Time=time).sum('Time')
@@ -46,7 +47,10 @@ def wrf_time_downsample(infile='./ncdata/wrf-200010-200012-precip-raw.nc', var_n
 	print(f'{infile} downsampled to {time}')
 
 # initial downsampling to daily sum
-wrf_time_downsample(infile='./ncdata/wrf-200410-200412-precip-raw.nc', outfile='./ncdata/wrf-200410-200412-precip.nc')
+var_name = 'temp'
+date_range='200107-200109'
+wrf_time_downsample(infile=f'./ncdata/wrf-{date_range}-{var_name}-raw.nc', outfile=f'./ncdata/wrf-{date_range}-{var_name}.nc',
+					method='max', var_name='T2')
 
 # # loading in daily max temp
 # wrf_data = xr.open_dataset('./ncdata/wrf-200010-200012-precip.nc')

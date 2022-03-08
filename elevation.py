@@ -11,7 +11,8 @@ Takes in a netcdf file and saves output as torch tensor
 """
 
 REGION_COORDS = {'nwus':([38,48],[238,248]), 'seus':([28,38], [268,278]), 
-				 'neus':([35,45], [273,283]), 'swus':([32,42], [242,252])}
+				 'neus':([35,45], [273,283]), 'swus':([32,42], [242,252]),
+				 'mwus':([35,45],[255, 265])}
 
 def interpolate(data, lat_range, lon_range, steps, method):
 	lats = np.linspace(lat_range[0], lat_range[1], steps)
@@ -21,19 +22,20 @@ def interpolate(data, lat_range, lon_range, steps, method):
 	return interp_data
 
 # loading in elevation data
-elev_data = xr.open_dataset('./ncdata/elev025-deg.nc')
+elev_data = xr.open_dataset('./ncdata/elev-americas-5-min.nc')
 elevations = elev_data.data[0,:,:]
 # plot_image_map(elevations, elevations.lat, elevations.lon)
 # plt.show()
 
 # interpolating to desired coordinates
-region = 'swus'
-lat_range, lon_range = REGION_COORDS[region]
-steps=40
+regions = ['nwus', 'swus', 'mwus', 'neus', 'seus']
+for region in regions:
+	lat_range, lon_range = REGION_COORDS[region]
+	steps=160
 
-interp_elev = interpolate(elevations, lat_range, lon_range, steps, method='linear')
-plot_image_map(interp_elev, interp_elev.lat, interp_elev.lon)
-plt.show()
+	interp_elev = interpolate(elevations, lat_range, lon_range, steps, method='linear')
+	# plot_image_map(interp_elev, interp_elev.lat, interp_elev.lon)
+	# plt.show()
 
-# save this as a tensor
-torch.save(torch.tensor(interp_elev.values), f'./tensordata-precip-40/{region}-elevation-40x40.pt')
+	# save this as a tensor
+	torch.save(torch.tensor(interp_elev.values), f'./tensordata-precip-{steps}/{region}-elevation-{steps}x{steps}.pt')

@@ -11,33 +11,74 @@ for the year 2000
 
 """
 REGION_COORDS = {'nwus':([38,48],[238,248]), 'seus':([28,38], [268,278]), 
-				 'neus':([35,45], [273,283]), 'swus':([32,42], [242,252])}
+				 'neus':([35,45], [273,283]), 'swus':([32,42], [242,252]),
+				 'mwus':([35,45],[255, 265])}
 
-myData =  EraiCpcDataset('./tensordata/nwus-2000-01-01.csv', './tensordata')
-lr_avg_precip = np.zeros(myData.__len__())
-hr_avg_precip = np.zeros(myData.__len__())
+ERA_CPC_data =  EraiCpcDataset('./tensordata-precip-100')
+ERA_WRF_data =  EraiWRFDataset('./tensordata-precip-100')
 
-for i in range(myData.__len__()):
-	(hr_img, lr_img, prev_hr_img) = myData.__getitem__(i)
-	lr_avg_precip[i] = torch.mean(lr_img).numpy()
-	hr_avg_precip[i] = torch.mean(hr_img).numpy()
+lr_avg_precip = np.zeros(ERA_CPC_data.__len__())
+mr_avg_precip = np.zeros(ERA_CPC_data.__len__())
+hr_avg_precip = np.zeros(ERA_CPC_data.__len__())
+lr_max_precip = np.zeros(ERA_CPC_data.__len__())
+mr_max_precip = np.zeros(ERA_CPC_data.__len__())
+hr_max_precip = np.zeros(ERA_CPC_data.__len__())
+
+for i in range(ERA_CPC_data.__len__()):
+	curr_precip_data = ERA_CPC_data.__getitem__(i)
+	lr_avg_precip[i] = torch.mean(curr_precip_data['lr_img']).numpy()
+	mr_avg_precip[i] = torch.mean(curr_precip_data['hr_img']).numpy()
+	lr_max_precip[i] = torch.max(curr_precip_data['lr_img']).numpy()
+	mr_max_precip[i] = torch.max(curr_precip_data['hr_img']).numpy()
+
+for i in range(ERA_WRF_data.__len__()):
+	curr_precip_data = ERA_WRF_data.__getitem__(i)
+	hr_avg_precip[i] = torch.mean(curr_precip_data['hr_img']).numpy()
+	hr_max_precip[i] = torch.max(curr_precip_data['hr_img']).numpy()
 
 
-plt.plot(list(range(myData.__len__())), lr_avg_precip, label="low resolution")
-plt.plot(list(range(myData.__len__())), hr_avg_precip, label="high resolution")
-plt.xlabel("day of the year (2001)")
-plt.ylabel("average precipitation (mm) for NW US")
+# comparing spatial averages over time
+end=100
+plt.plot(list(range(ERA_CPC_data.__len__()))[:end], lr_avg_precip[:end], label="ERA low resolution")
+plt.plot(list(range(ERA_CPC_data.__len__()))[:end], mr_avg_precip[:end], label="CPC medium resolution")
+plt.plot(list(range(ERA_WRF_data.__len__()))[:end], hr_avg_precip[:end], label="WRF high resolution")
+plt.xlabel("days since 10/01/2000")
+plt.ylabel("AVERAGE precipitation (mm) for NW US")
 plt.legend()
 plt.show()
 
+# comparing spatial max over time
+plt.plot(list(range(ERA_CPC_data.__len__()))[:end], lr_max_precip[:end], label="ERA low resolution")
+plt.plot(list(range(ERA_CPC_data.__len__()))[:end], mr_max_precip[:end], label="CPC medium resolution")
+plt.plot(list(range(ERA_WRF_data.__len__()))[:end], hr_max_precip[:end], label="WRF high resolution")
+plt.xlabel("days since 10/01/2000")
+plt.ylabel("MAX precipitation (mm) for NW US")
+plt.legend()
 
-# # Plotting two images to compare
+plt.show()
+
+
+# # Plotting three images to compare
+# img_choice = 0
 # steps = 100
-# fig, axarr, plot_next = image_map_factory(1,2, hspace=0.1);
+# fig, axarr, plot_next = image_map_factory(3,1, hspace=0.1,cbar_per_subplot=True, 
+# 										  gridlines=False, cbar_orientation='vertical')
 # lat_range, lon_range = REGION_COORDS['nwus']
 # lats = np.linspace(lat_range[0], lat_range[1], steps)
 # lons = np.linspace(lon_range[0], lon_range[1], steps)
-# (hr_img, lr_img, prev_hr_img) = myData.__getitem__(10)
-# plot_next(axarr[0], lr_img.numpy(), lats, lons, min_max=[0,60], title='Low Resolution Daily Precipitation')
-# plot_next(axarr[1], hr_img.numpy(), lats, lons, min_max=[0,60], title='High Resolution Daily Precipitation')
+# curr_precip_data = ERA_CPC_data.__getitem__(img_choice)
+# erai_img = curr_precip_data['lr_img']
+# cpc_img = curr_precip_data['hr_img']
+# curr_precip_data = ERA_WRF_data.__getitem__(img_choice)
+# wrf_img = curr_precip_data['hr_img']
+# max_value = torch.max(torch.cat((erai_img,cpc_img,wrf_img)))
+
+# plot_next(axarr[0], erai_img.numpy(), lats, lons, title='ERAI Daily Precipitation',
+# 			min_max=[0, max_value])
+# plot_next(axarr[1], cpc_img.numpy(), lats, lons, title='CPC Resolution Daily Precipitation',
+# 			min_max=[0, max_value])
+# plot_next(axarr[2], wrf_img.numpy(), lats, lons, title='WRF Resolution Daily Precipitation',
+# 			min_max=[0, max_value])
+
+# plt.suptitle('Precipitation (MM) on 10/01/2000 in NW US', fontsize=18)
 # plt.show()
