@@ -36,7 +36,7 @@ res_folder='results/'
 if not os.path.exists(res_folder):
     os.mkdir(res_folder)
 for mode in ['EAD/','naive/','AE/','ours/']:
-    for test_set in ['test','test_new']:
+    for test_set in ['test','new_test']:
         if not os.path.exists(res_folder+mode):
             os.mkdir(res_folder+mode)
         style_dim=512
@@ -44,16 +44,16 @@ for mode in ['EAD/','naive/','AE/','ours/']:
         test_loader=torch.utils.data.DataLoader(test_data,batch_size=1,shuffle=True,num_workers=1,pin_memory=True,sampler=None,drop_last=True)
         if  mode=='ours/':
             network=Generator(size1=40,size2=40,style_dim=style_dim,coord_size=4)
-            network.load_state_dict(torch.load('generator0.2.pt'))
+            network.load_state_dict(torch.load('generator10.pt'))
         elif mode=='EAD/':
             network=Generator(size1=40,size2=40,style_dim=style_dim,coord_size=3)
-            network.load_state_dict(torch.load('generator0.2_.pt'))
+            network.load_state_dict(torch.load('generator10_.pt'))
         elif mode=='naive/':
             network=AutoEncoder(size1=40,size2=40)
-            network.load_state_dict(torch.load('autoencoder_.pt'))
+            network.load_state_dict(torch.load('autoencoder_naive.pt'))
         elif mode=='AE/':
             network=AE(input_channels=1,num_layers=3,base_num=16)
-            network.load_state_dict(torch.load('autoencoder.pt'))
+            network.load_state_dict(torch.load('autoencoder_ae.pt'))
         network=network.to(device)
         network=network.eval()
         with torch.no_grad():
