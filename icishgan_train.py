@@ -137,9 +137,9 @@ for l1_lambda in [10]:
                     requires_grad(network_g,True)
                     requires_grad(network_d,False)
                     noise=mixing_noise(batch_size,style_dim,1,device)
-                    fake_hr=network_g(coord,lr_img,prev_hr_img,noise)
-                    fake_input_g=torch.cat((fake_hr,lr_img,prev_hr_img),1)
-                    fake_pred=network_d(fake_input_g)
+                    fake_hr,cond=network_g(coord,lr_img,prev_hr_img,noise)
+                    fake_input_d=fake_hr
+                    fake_pred=network_d(fake_input_d,cond)
                     g_gan_loss=g_nonsaturating_loss(fake_pred)
                     rec_loss=g_rec_loss(fake_hr,hr_img)
                     g_loss=g_gan_loss+l1_lambda*rec_loss
