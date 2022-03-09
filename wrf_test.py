@@ -48,7 +48,7 @@ def wrf_time_downsample(infile='./ncdata/wrf-200010-200012-precip-raw.nc', var_n
 
 # initial downsampling to daily sum
 var_name = 'temp'
-date_range='200107-200109'
+date_range='200310-200312'
 wrf_time_downsample(infile=f'./ncdata/wrf-{date_range}-{var_name}-raw.nc', outfile=f'./ncdata/wrf-{date_range}-{var_name}.nc',
 					method='max', var_name='T2')
 
