@@ -202,12 +202,14 @@ class EraiCpcWrfDataset(Dataset):
             self.latitude['swus']=torch.linspace(32,42,160).unsqueeze(1)
             self.longitude['swus']=torch.linspace(242,252,160).unsqueeze(0)
         else:
-            date='2000-01-01'
+            date='2001-01-01'
             end_date='3000-01-01'
             r='mwus'
+            #print(os.path.exists(img_path+'/erai-'+r+'-precip-'+date+'.pt'),os.path.exists(img_path+'/cpc-'+r+'-precip-'+date+'.pt'),os.path.exists(img_path+'/wrf-'+r+'-precip-'+date+'.pt'))
             while os.path.exists(img_path+'/erai-'+r+'-precip-'+date+'.pt') and os.path.exists(img_path+'/cpc-'+r+'-precip-'+date+'.pt') and os.path.exists(img_path+'/wrf-'+r+'-precip-'+date+'.pt') and date!=end_date:
                 self.erai.append('erai-'+r+'-precip-'+date+'.pt')
                 self.cpc.append('cpc-'+r+'-precip-'+date+'.pt')
+                self.wrf.append('wrf-'+r+'-precip-'+date+'.pt')
                 self.regions.append(r)
                 date=next_date(date)
             self.elevation[r]=torch.load(img_path+'/'+r+'-elevation-160x160.pt')
@@ -244,5 +246,6 @@ class EraiCpcWrfDataset(Dataset):
 if __name__ == "__main__":
     # just testing that we return three tensor images for a given index
     #print(torch.load('./tensordata/erai-nwus-precip-2000-01-02.pt'))
-    myData =  EraiCpcWrfDataset('./tensordata-precip-160','test')
+    myData =  EraiCpcWrfDataset('./tensordata-precip-160','new_test')
+    print(len(myData))
     print(myData.__getitem__(0)['name'])
