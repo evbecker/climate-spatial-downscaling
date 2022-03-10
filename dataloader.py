@@ -78,7 +78,7 @@ def next_date(date):
 
 class EraiCpcDataset(Dataset):
 
-    def __init__(self, img_path,mode='train'):
+    def __init__(self, img_path, mode='train', regions=['neus','nwus','seus','swus']):
         #self.csv_path = csv_path
         self.img_path = img_path
         # Read the csv file
@@ -92,7 +92,7 @@ class EraiCpcDataset(Dataset):
         self.latitude={}
         self.longitude={}
         if mode!='new_test':
-            for r in ['neus','nwus','seus','swus']:
+            for r in regions:
                 if mode=='train':
                     date='2002-01-01'
                     end_date='3000-01-01'
@@ -161,7 +161,7 @@ class EraiCpcDataset(Dataset):
 
 class EraiCpcWrfDataset(Dataset):
 
-    def __init__(self, img_path,mode='train'):
+    def __init__(self, img_path, mode='train', regions=['neus','nwus','seus','swus']):
         #self.csv_path = csv_path
         self.img_path = img_path
         # Read the csv file
@@ -176,7 +176,7 @@ class EraiCpcWrfDataset(Dataset):
         self.latitude={}
         self.longitude={}
         if mode!='new_test':
-            for r in ['neus','nwus','seus','swus']:
+            for r in regions:
                 if mode=='train':
                     date='2003-01-01'
                     end_date='3000-01-01'
