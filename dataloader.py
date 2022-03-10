@@ -205,7 +205,7 @@ class EraiCpcWrfDataset(Dataset):
             date='2000-01-01'
             end_date='3000-01-01'
             r='mwus'
-            while os.path.exists(img_path+'/erai-'+r+'-precip-'+date+'.pt') and os.path.exists(img_path+'/cpc-'+r+'-precip-'+date+'.pt') and date!=end_date:
+            while os.path.exists(img_path+'/erai-'+r+'-precip-'+date+'.pt') and os.path.exists(img_path+'/cpc-'+r+'-precip-'+date+'.pt') and os.path.exists(img_path+'/wrf-'+r+'-precip-'+date+'.pt') and date!=end_date:
                 self.erai.append('erai-'+r+'-precip-'+date+'.pt')
                 self.cpc.append('cpc-'+r+'-precip-'+date+'.pt')
                 self.regions.append(r)
@@ -236,7 +236,7 @@ class EraiCpcWrfDataset(Dataset):
         coord[2,:,:]=self.longitude[r]
         coord[3,:,:]=self.elevation[r]
         #print(self.erai[index][-13:-3])
-        return {'hr_img':hr_img.astype(torch.FloatTensor),'lr_img':lr_img.astype(torch.FloatTensor),'prev_hr_img':prev_hr_img.astype(torch.FloatTensor),'coord':coord,'name':self.cpc[index],'region':r,'slr_img':slr_img.astype(torch.FloatTensor)}
+        return {'hr_img':hr_img.type(torch.FloatTensor),'lr_img':lr_img.type(torch.FloatTensor),'prev_hr_img':prev_hr_img.type(torch.FloatTensor),'coord':coord,'name':self.cpc[index],'region':r,'slr_img':slr_img.type(torch.FloatTensor)}
 
     def __len__(self):
         return self.data_len
