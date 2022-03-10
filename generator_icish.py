@@ -367,10 +367,10 @@ class Discriminator(nn.Module):
 
         self.first_conv = Conv(input_size, channels[size], 1,1,0)
         convs=[]
-        convs.extend([ConvLayer(channels[size]+cond_size, channels[size], 3,1,1) for _ in range(n_first_layers)])
+        convs.extend([ConvLayer(channels[size]+cond_size, channels[size]+cond_size, 3,1,1) for _ in range(n_first_layers)])
 
 
-        in_channel = channels[size]
+        in_channel = channels[size]+cond_size
 
         for i in range(log_size, 2, -1):
             out_channel = channels[2 ** (i - 1)]
