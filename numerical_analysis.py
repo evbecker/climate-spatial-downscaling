@@ -4,7 +4,7 @@ from evaluation_metrics import *
 from autoencoder import AutoEncoder
 
 from torch.utils.data import Subset
-from dataloader import EraiCpcDataset
+from dataloader import EraiCpcDataset,EraiCpcWrfDataset
 from networks_ import AE
 import random
 import os
@@ -30,24 +30,27 @@ def mixing_noise(batch, latent_dim, prob, device):
 
 
 
-def evaluate(mode,model_path):
+def evaluate(mode,model_path,reso):
     style_dim=512
     if not os.path.exists(model_path):
         return
     if  mode=='ours':
-        network=Generator(size1=40,size2=40,style_dim=style_dim,coord_size=4)
+        network=Generator(size1=reso,size2=reso,style_dim=style_dim,coord_size=4)
         network.load_state_dict(torch.load(model_path))
     elif mode=='EAD':
-        network=Generator(size1=40,size2=40,style_dim=style_dim,coord_size=3)
+        network=Generator(size1=reso,size2=reso,style_dim=style_dim,coord_size=3)
         network.load_state_dict(torch.load(model_path))
     elif mode=='naive':
-        network=AutoEncoder(size1=40,size2=40)
+        network=AutoEncoder(size1=reso,size2=reso)
         network.load_state_dict(torch.load(model_path))
     elif mode=='AE':
         network=AE(input_channels=1,num_layers=3,base_num=16)
         network.load_state_dict(torch.load(model_path))
     for test_set in ['test','new_test']:
-        test_data=EraiCpcDataset('./tensordata',test_set)
+        if reso==40:
+            test_data=EraiCpcDataset('./tensordata',test_set)
+        else:
+            test_data=EraiCpcWrfDataset('./tensordata-precip-160',test_set)
         test_loader=torch.utils.data.DataLoader(test_data,batch_size=1,shuffle=True,num_workers=1,pin_memory=True,sampler=None,drop_last=True)
         network=network.to(device)
         network.eval()
@@ -80,7 +83,7 @@ for i in [0.01,0.02,0.05,0.1,0.2,0.5,1,2,5,10]:
     evaluate('EAD','generator'+str(i)+'_.pt')
 '''
 #evaluate('AE','autoencoder_ae.pt')
-evaluate('naive','autoencoder_naive.pt')
+evaluate('ours','_generatator10.pt',160)
 
 
 
