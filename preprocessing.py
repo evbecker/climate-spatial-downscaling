@@ -8,11 +8,13 @@ from datetime import date, timedelta
 import scipy.interpolate.ndgriddata as ndgriddata
 
 """
-TODO: erai data on first and last days of month only have 12 hr totals
+TODO: add argparser for final submission
 
 """
 MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul','aug', 'sep', 'oct', 'nov', 'dec']
-YEARS = ['2000', '2001', '2002', '2003', '2004', '2005', '2006']
+YEARS1 = ['2000', '2001', '2002', '2003', '2004', '2005', '2006']
+YEARS2 = ['2007', '2008', '2009', '2010', '2011', '2012', '2013', 
+		  '2014', '2015', '2016', '2017', '2018']
 QUARTERS = [('01','03'), ('04','06'), ('07','09'), ('10','12')]
 REGION_COORDS = {'nwus':([38,48],[238,248]), 'seus':([28,38], [268,278]), 
 				 'neus':([35,45], [273,283]), 'swus':([32,42], [242,252]),
@@ -121,8 +123,12 @@ def cpc_precip_to_torch_tensors(file='./cpc-2000-precip.nc', out_dir= './tensord
 	# converts image at each timepoint to a tensor
 	cpc_data = xr.open_dataset(file)
 	cpc_data = cpc_data.fillna(0)
-	cpc_precip = cpc_data.precip
 	time = cpc_data.time.dt.date
+	# if file is from after 2006, we need to downsample to daily measurements
+	if time.values[0]>date(2006, 12, 31):
+		cpc_precip = cpc_data.precip.resample(time='24H').sum('time')
+	else:
+		cpc_precip = cpc_data.precip
 	# cropping data to specific region
 	lat_range, lon_range = REGION_COORDS[region]
 	if steps == None:
@@ -160,23 +166,20 @@ def make_precip_csv(sdate, edate, erai_cpc=False, erai_wrf=False, cpc_wrf=False,
 
 if __name__ == "__main__":
 	var = 'precip'
-	steps = 160
+	steps = 40
 	regions = ['nwus', 'swus', 'mwus', 'neus', 'seus']
 
-	for region in regions:
-		for year in YEARS[1:]:
-			for quarter in QUARTERS:
-				date_range=f'{year}{quarter[0]}-{year}{quarter[1]}'
-				wrf_precip_to_torch_tensors(file=f'./ncdata/wrf-{date_range}-{var}.nc', 
-											out_dir=f'./tensordata-{var}-{steps}',
-											region=region, steps=steps)
+	# for region in regions:
+	# 	for year in YEARS[1:]:
+	# 		for quarter in QUARTERS:
+	# 			date_range=f'{year}{quarter[0]}-{year}{quarter[1]}'
+	# 			wrf_precip_to_torch_tensors(file=f'./ncdata/wrf-{date_range}-{var}.nc', 
+	# 										out_dir=f'./tensordata-{var}-{steps}',
+	# 										region=region, steps=steps)
 
 	for region in regions:
-		for year in YEARS:
+		for year in YEARS2:
 			erai_to_torch_tensors(file=f'./ncdata/erai-{year}-{var}.nc', out_dir=f'./tensordata-{var}-{steps}', 
 								  var=var, steps=steps, region=region)
 			cpc_precip_to_torch_tensors(file = f'./ncdata/cpc-{year}-precip.nc', out_dir=f'./tensordata-{var}-{steps}', 
 										steps=steps, region=region)
-	
-	# make_precip_csv(sdate=date(2000,1,1), edate=date(2006,12,31), erai_cpc=True, 
-					# regions=regions, out_dir=f'./tensordata-{var}-{steps}')

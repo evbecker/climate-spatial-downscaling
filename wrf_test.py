@@ -7,7 +7,8 @@ from datetime import date, timedelta
 from plot import *
 
 REGION_COORDS = {'nwus':([38,48],[238,248]), 'seus':([28,38], [268,278]), 
-				 'neus':([35,45], [273,283]), 'swus':([32,42], [242,252])}
+				 'neus':([35,45], [273,283]), 'swus':([32,42], [242,252]),
+				 'mwus':([35,45],[255, 265])}
 
 def wrf_interpolate(data, lat_range, lon_range, steps, method="nearest"):
 	# first retrieving original coords, flattening data
@@ -48,7 +49,7 @@ def wrf_time_downsample(infile='./ncdata/wrf-200010-200012-precip-raw.nc', var_n
 
 # initial downsampling to daily sum
 var_name = 'temp'
-date_range='200310-200312'
+date_range='200407-200409'
 wrf_time_downsample(infile=f'./ncdata/wrf-{date_range}-{var_name}-raw.nc', outfile=f'./ncdata/wrf-{date_range}-{var_name}.nc',
 					method='max', var_name='T2')
 

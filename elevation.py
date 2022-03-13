@@ -24,8 +24,8 @@ def interpolate(data, lat_range, lon_range, steps, method):
 # loading in elevation data
 elev_data = xr.open_dataset('./ncdata/elev-americas-5-min.nc')
 elevations = elev_data.data[0,:,:]
-# plot_image_map(elevations, elevations.lat, elevations.lon)
-# plt.show()
+plot_image_map(elevations, elevations.lat, elevations.lon, cmap='inferno')
+plt.show()
 
 # interpolating to desired coordinates
 regions = ['nwus', 'swus', 'mwus', 'neus', 'seus']
@@ -34,7 +34,7 @@ for region in regions:
 	steps=160
 
 	interp_elev = interpolate(elevations, lat_range, lon_range, steps, method='linear')
-	# plot_image_map(interp_elev, interp_elev.lat, interp_elev.lon)
+	# plot_image_map(interp_elev, interp_elev.lat, interp_elev.lon, cmap='inferno')
 	# plt.show()
 
 	# save this as a tensor
