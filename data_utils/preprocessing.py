@@ -75,14 +75,19 @@ def wrf_time_downsample(infile='./ncdata/wrf-200010-200012-precip-raw.nc', var_n
 	wrf_var.to_netcdf(outfile)
 	print(f'{infile} downsampled to {time}')
 
-def wrf_precip_to_torch_tensors(file='./wrf-200010-200012-precip.nc', out_dir='./tensordata', 
-								 region='nwus', steps=100):
+def wrf_to_torch_tensors(file='./wrf-200010-200012-precip.nc', out_dir='./tensordata', 
+								 var='precip', region='nwus', steps=100):
 	wrf_data = xr.open_dataset(file)
-	wrf_precip = wrf_data['PREC_ACC_NC']
-	time = wrf_precip.Time.dt.date
+	if var == 'precip':
+		wrf_var = wrf_data['PREC_ACC_NC']
+	elif var == 'temp':
+		wrf_var = wrf_data['T2']
+	else:
+		assert(False)
+	time = wrf_var.Time.dt.date
 	# cropping data to a specific region
 	lat_range, lon_range = REGION_COORDS[region]
-	regional_precip = wrf_interpolate(wrf_precip, lat_range, lon_range, steps)
+	regional_precip = wrf_interpolate(wrf_var, lat_range, lon_range, steps)
 	for i, t in enumerate(time.values):
 		out_path = os.path.join(out_dir, f'wrf-{region}-precip-{t}.pt')
 		print(f'time: {t}, with shape: {regional_precip[i,:,:].shape}')
@@ -165,21 +170,21 @@ def make_precip_csv(sdate, edate, erai_cpc=False, erai_wrf=False, cpc_wrf=False,
 
 
 if __name__ == "__main__":
-	var = 'precip'
-	steps = 40
+	var = 'temp'
+	steps = 160
 	regions = ['nwus', 'swus', 'mwus', 'neus', 'seus']
 
 	# for region in regions:
-	# 	for year in YEARS[1:]:
+	# 	for year in YEARS1[1:]:
 	# 		for quarter in QUARTERS:
 	# 			date_range=f'{year}{quarter[0]}-{year}{quarter[1]}'
-	# 			wrf_precip_to_torch_tensors(file=f'./ncdata/wrf-{date_range}-{var}.nc', 
-	# 										out_dir=f'./tensordata-{var}-{steps}',
-	# 										region=region, steps=steps)
+	# 			wrf_to_torch_tensors(file=f'../ncdata/wrf-{date_range}-{var}.nc', 
+	# 										out_dir=f'../tensordata-{var}-{steps}',
+	# 										var=var, region=region, steps=steps)
 
 	for region in regions:
-		for year in YEARS2:
-			erai_to_torch_tensors(file=f'./ncdata/erai-{year}-{var}.nc', out_dir=f'./tensordata-{var}-{steps}', 
+		for year in YEARS1:
+			erai_to_torch_tensors(file=f'../ncdata/erai-{year}-{var}.nc', out_dir=f'../tensordata-{var}-{steps}', 
 								  var=var, steps=steps, region=region)
-			cpc_precip_to_torch_tensors(file = f'./ncdata/cpc-{year}-precip.nc', out_dir=f'./tensordata-{var}-{steps}', 
-										steps=steps, region=region)
+			# cpc_precip_to_torch_tensors(file = f'./ncdata/cpc-{year}-precip.nc', out_dir=f'./tensordata-{var}-{steps}', 
+			# 							steps=steps, region=region)

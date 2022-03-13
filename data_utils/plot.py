@@ -4,6 +4,7 @@ import cartopy.crs as ccrs
 from matplotlib.colors import ListedColormap
 
 """
+Plotting utilities to generate maps from coordinate data
 This code is taken from https://github.com/bgroenks96/generative-downscaling
 """
 

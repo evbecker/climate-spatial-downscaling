@@ -6,6 +6,10 @@ import netCDF4 as nc
 from datetime import date, timedelta
 from plot import *
 
+"""
+Testing preprocessing for the wrf datasets
+"""
+
 REGION_COORDS = {'nwus':([38,48],[238,248]), 'seus':([28,38], [268,278]), 
 				 'neus':([35,45], [273,283]), 'swus':([32,42], [242,252]),
 				 'mwus':([35,45],[255, 265])}
@@ -47,16 +51,17 @@ def wrf_time_downsample(infile='./ncdata/wrf-200010-200012-precip-raw.nc', var_n
 	wrf_var.to_netcdf(outfile)
 	print(f'{infile} downsampled to {time}')
 
-# initial downsampling to daily sum
-var_name = 'temp'
-date_range='200407-200409'
-wrf_time_downsample(infile=f'./ncdata/wrf-{date_range}-{var_name}-raw.nc', outfile=f'./ncdata/wrf-{date_range}-{var_name}.nc',
-					method='max', var_name='T2')
+# # initial downsampling to daily sum
+# var_name = 'temp'
+# date_range='200610-200612'
+# wrf_time_downsample(infile=f'../ncdata/wrf-{date_range}-{var_name}-raw.nc', outfile=f'../ncdata/wrf-{date_range}-{var_name}.nc',
+# 					method='max', var_name='T2')
 
-# # loading in daily max temp
-# wrf_data = xr.open_dataset('./ncdata/wrf-200010-200012-precip.nc')
-# wrf_var = wrf_data['PREC_ACC_NC']
-# print(wrf_var)
+# loading in daily max temp
+wrf_data = xr.open_dataset('../ncdata/wrf-200010-200012-temp.nc')
+print(wrf_data)
+wrf_var = wrf_data['T2']
+print(wrf_var)
 
 # lat_range, lon_range = REGION_COORDS['nwus']
 # interp_wrf_var = wrf_interpolate(wrf_var, lat_range, lon_range, steps=100)
