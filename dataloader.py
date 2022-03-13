@@ -78,7 +78,7 @@ def next_date(date):
 
 class EraiCpcDataset(Dataset):
 
-    def __init__(self, img_path,mode='train'):
+    def __init__(self, img_path,mode='train',full=True):
         #self.csv_path = csv_path
         self.img_path = img_path
         # Read the csv file
@@ -95,7 +95,10 @@ class EraiCpcDataset(Dataset):
             for r in ['neus','nwus','seus','swus']:
                 if mode=='train':
                     date='2002-01-01'
-                    end_date='3000-01-01'
+                    if full:
+                        end_date='3000-01-01'
+                    else:
+                        end_date='2008-01-01'
                 elif mode=='val':
                     date='2001-01-01'
                     end_date='2002-01-01'
@@ -118,7 +121,7 @@ class EraiCpcDataset(Dataset):
             self.longitude['swus']=torch.linspace(242,252,40).unsqueeze(0)
         else:
             date='2000-01-01'
-            end_date='3000-01-01'
+            end_date='2008-01-01'
             r='mwus'
             while os.path.exists(img_path+'/erai-'+r+'-precip-'+date+'.pt') and os.path.exists(img_path+'/cpc-'+r+'-precip-'+date+'.pt') and date!=end_date:
                 self.erai.append('erai-'+r+'-precip-'+date+'.pt')

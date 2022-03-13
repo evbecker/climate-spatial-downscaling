@@ -37,6 +37,9 @@ def evaluate(mode,model_path):
     if  mode=='ours_icish':
         network=Generator(size1=40,size2=40,style_dim=style_dim,coord_size=4)
         network.load_state_dict(torch.load(model_path))
+    if  mode=='not_ours_icish':
+        network=Generator(size1=40,size2=40,style_dim=style_dim,coord_size=3)
+        network.load_state_dict(torch.load(model_path))
     for test_set in ['test','new_test']:
         test_data=EraiCpcDataset('./tensordata',test_set)
         test_loader=torch.utils.data.DataLoader(test_data,batch_size=1,shuffle=True,num_workers=1,pin_memory=True,sampler=None,drop_last=True)
@@ -54,7 +57,8 @@ def evaluate(mode,model_path):
                 noise=mixing_noise(1,style_dim,1,device)
                 if mode=='ours_icish':
                     pred,_=network(coord,lr_img,prev_hr_img,noise)
-
+                elif mode=='not_ours_icish':
+                    pred,_=network(coord[:,:3,:,:],lr_img,prev_hr_img,noise)
                 pred=pred.detach().cpu().numpy()
                 hr_img=hr_img.detach().cpu().numpy()
                 rmse.append(RMSE(pred,hr_img))
@@ -68,4 +72,4 @@ for i in [0.01,0.02,0.05,0.1,0.2,0.5,1,2,5,10]:
     evaluate('EAD','generator'+str(i)+'_.pt')
 '''
 #evaluate('AE','autoencoder_ae.pt')
-evaluate('ours_icish','_generator10.pt')
+evaluate('not_ours_icish','_generator10_.pt')

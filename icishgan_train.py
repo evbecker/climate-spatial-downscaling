@@ -85,11 +85,11 @@ def g_rec_loss(fake, real):
 for l1_lambda in [10]:
     for dataset in [40]:
 #for l1_lambda in [0.2]:
-        for mode in ['ours']:
+        for mode in ['not_ours']:
             batch_size=8
             style_dim=512
             if dataset==40:
-                train_data=EraiCpcDataset('./tensordata','train')
+                train_data=EraiCpcDataset('./tensordata','train',full=False)
                 val_data=EraiCpcDataset('./tensordata','val')
                 test_data=EraiCpcDataset('./tensordata','test')
             else:
