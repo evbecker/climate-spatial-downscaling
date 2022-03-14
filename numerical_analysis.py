@@ -46,7 +46,9 @@ def evaluate(mode,model_path,reso):
     elif mode=='AE':
         network=AE(input_channels=1,num_layers=3,base_num=16)
         network.load_state_dict(torch.load(model_path))
+    print(mode)
     for test_set in ['test','new_test']:
+        print(test_set)
         if reso==40:
             test_data=EraiCpcDataset('./tensordata',test_set)
         else:
@@ -64,6 +66,7 @@ def evaluate(mode,model_path,reso):
         '''
         with torch.no_grad():
             for batch_num,data in enumerate(test_loader):
+                print(batch_num)
                 hr_img,lr_img,prev_hr_img,coord,name=data['hr_img'].to(device),data['lr_img'].to(device),data['prev_hr_img'].to(device),data['coord'].to(device),data['name']
                 if mode=='EAD':
                     coord=coord[:,:3,:,:]
