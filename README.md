@@ -24,6 +24,6 @@ Please email evbecker @ ucla.edu for access or download manually from:
 * numerical_analysis.py: perform quantative analysis of the given model
 
 ### Training
-To train the GAN model, 
+To train the GAN model, simply run gan_train.py. Note that in the script, dataset can be set to 40 or 160, where 40 indicates using ERA as low resolution data and CPC as high resolution data while 160 indicates using CPC as low resolution data and WRF as high resolution data. mode can be set to 'ours' or 'EAD', where 'ours' is to train our model and 'EAD' is to train the EAD model. l1_lambda can be set to any value, which represent the weight for the reconstruction loss.
 
 ### Evaluation
