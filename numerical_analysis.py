@@ -56,10 +56,12 @@ def evaluate(mode,model_path,reso):
         network.eval()
         rmse=[]
         pc=[]
+        '''
         if test_set=='test':
             dic_pred,dic_target,regions_dic=max_per_init()
         elif test_set=='new_test':
             dic_pred,dic_target,regions_dic=max_per_init(regions=['mwus'],years=7)
+        '''
         with torch.no_grad():
             for batch_num,data in enumerate(test_loader):
                 hr_img,lr_img,prev_hr_img,coord,name=data['hr_img'].to(device),data['lr_img'].to(device),data['prev_hr_img'].to(device),data['coord'].to(device),data['name']
@@ -74,9 +76,10 @@ def evaluate(mode,model_path,reso):
                 hr_img=hr_img.detach().cpu().numpy()
                 rmse.append(RMSE(pred,hr_img))
                 pc.append(PCorrelation(pred,hr_img))
-                dic_pred,dic_target=max_per_calculate(pred,hr_img,name[0],dic_pred,dic_target,regions_dic,2000)
-        mean_dif,std_dif=max_per(dic_pred,dic_target)
-        print(test_set,model_path,np.mean(rmse),np.std(rmse),np.mean(pc),np.std(pc),mean_dif,std_dif)
+                #dic_pred,dic_target=max_per_calculate(pred,hr_img,name[0],dic_pred,dic_target,regions_dic,2000)
+        #mean_dif,std_dif=max_per(dic_pred,dic_target)
+        #print(test_set,model_path,np.mean(rmse),np.std(rmse),np.mean(pc),np.std(pc),mean_dif,std_dif)
+        print(test_set,model_path,np.mean(rmse),np.std(rmse),np.mean(pc),np.std(pc))
 '''
 for i in [0.01,0.02,0.05,0.1,0.2,0.5,1,2,5,10]:
     evaluate('ours','generator'+str(i)+'.pt')
