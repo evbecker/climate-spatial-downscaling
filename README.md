@@ -19,10 +19,11 @@ Please email evbecker @ ucla.edu for access or download manually from:
 * embedding_analysis.py: plots principal components of image embeddings
 * visualize_predictions.py: plots model predictions along with low and high resolution data
 * dataloader.py: defines pytorch datasets to be used during training
-* gan_train.py:
-* generate_results.py:
-* numerical_analysis.py:
+* gan_train.py: runs the script to train the GAN models
+* generate_results.py: generates the results from the trained networks and save them as .pt files in the designated folder
+* numerical_analysis.py: perform quantative analysis of the given model
 
 ### Training
+To train the GAN model, 
 
 ### Evaluation
