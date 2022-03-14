@@ -32,8 +32,8 @@ device='cuda:0'
 
 
 #for l1_lambda in [0.01,0.05,0.1,0.2,0.5,1,5,10]:
-res_folder='results_160/'
-reso=160
+res_folder='results_full/'
+reso=40
 if not os.path.exists(res_folder):
     os.mkdir(res_folder)
 for mode in ['ours/']:
