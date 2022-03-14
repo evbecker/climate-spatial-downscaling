@@ -13,7 +13,7 @@ REGION_COORDS = {'nwus':([38,48],[238,248]), 'seus':([28,38], [268,278]),
 # choosing which results to show
 model_path='./results_160'
 data_path='./tensordata-precip-160'
-date='2001-03-11'
+date='2001-03-14'
 region='nwus'
 steps = 160
 
@@ -27,7 +27,6 @@ predictions = []
 max_value = 0
 for i, model in enumerate(MODELS):
 	img_path = os.path.join(model_path, model, f'cpc-{region}-precip-{date}.pt')
-	# img_path = os.path.join(model_path, model, f'cpc-nwus-precip-2000-09-08.pt')
 	print(img_path)
 	predictions.append(torch.load(img_path, map_location=torch.device('cpu')))
 	if torch.max(predictions[i]) > max_value:
@@ -41,7 +40,7 @@ cpc_precip = torch.load(cpc_path, map_location=torch.device('cpu'))
 wrf_path = os.path.join(data_path, f'wrf-{region}-precip-{date}.pt')
 wrf_precip = torch.load(wrf_path, map_location=torch.device('cpu'))
 
-# # plotting on US map
+# # plotting low resolution (40x40) predictions on US map
 # fig, axarr, plot_next = image_map_factory(3,2, hspace=0.15, wspace=0.15, cbar_per_subplot=True, 
 # 										  gridlines=False, cbar_orientation='vertical')
 
@@ -67,17 +66,17 @@ wrf_precip = torch.load(wrf_path, map_location=torch.device('cpu'))
 
 # plt.show()
 
-# plotting on US map
-fig, axarr, plot_next = image_map_factory(1,3, hspace=0.15, wspace=0.15, cbar_per_subplot=True, 
+# plotting high resolution (160x160) predictions on US map
+fig, axarr, plot_next = image_map_factory(3,1, hspace=0.15, wspace=0.15, cbar_per_subplot=True, 
 										  gridlines=False, cbar_orientation='vertical')
 
-plt.suptitle(f'Daily Precipitation (MM) Northwest {date}', fontsize=18)
+plt.suptitle(f'160x160 Model Prediction\nNW US {date}', fontsize=18)
 
 plot_next(axarr[0], cpc_precip.numpy(), lats, lons, 
-			 min_max=[0, max_value], title= '(INPUT) ERA Low Resolution')
+			 min_max=[0, max_value], title= '(INPUT) CPC Low Resolution')
 
 plot_next(axarr[1], wrf_precip.numpy(), lats, lons, 
-			 min_max=[0, max_value], title='(TRUE) CPC High Resolution')			
+			 min_max=[0, max_value], title='(TRUE) WRF High Resolution')			
 
 plot_next(axarr[2], predictions[0].numpy(), lats, lons,  
 			 min_max=[0, max_value], title='(PREDICTED) Our Model High Resolution')

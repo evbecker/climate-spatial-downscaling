@@ -1,4 +1,5 @@
 import os
+import argparse
 import xarray as xr
 import numpy as np
 import netCDF4 as nc
@@ -174,17 +175,29 @@ if __name__ == "__main__":
 	steps = 160
 	regions = ['nwus', 'swus', 'mwus', 'neus', 'seus']
 
-	# for region in regions:
-	# 	for year in YEARS1[1:]:
-	# 		for quarter in QUARTERS:
-	# 			date_range=f'{year}{quarter[0]}-{year}{quarter[1]}'
-	# 			wrf_to_torch_tensors(file=f'../ncdata/wrf-{date_range}-{var}.nc', 
-	# 										out_dir=f'../tensordata-{var}-{steps}',
-	# 										var=var, region=region, steps=steps)
+	# parse args
+	parser = argparse.ArgumentParser()
+	parser.add_argument('--var', type=str, required=True, help="variable type can be temp or precip")
+	parser.add_argument('--steps', type=int, required=True, help="number of steps; max resolution is 10deg/steps")
+	parser.add_argument('--datasets', type=list, required=False, default=['wrf','erai','cpc'])
+	args = parser.parse_args()
+	var = args.var
+	steps = args.steps
+	datasets = args.datasets
 
+	if 'wrf' in datasets:
+		for region in regions:
+			for year in YEARS1[1:]:
+				for quarter in QUARTERS:
+					date_range=f'{year}{quarter[0]}-{year}{quarter[1]}'
+					wrf_to_torch_tensors(file=f'../ncdata/wrf-{date_range}-{var}.nc', 
+												out_dir=f'../tensordata-{var}-{steps}',
+												var=var, region=region, steps=steps)			
 	for region in regions:
 		for year in YEARS1:
-			erai_to_torch_tensors(file=f'../ncdata/erai-{year}-{var}.nc', out_dir=f'../tensordata-{var}-{steps}', 
-								  var=var, steps=steps, region=region)
-			# cpc_precip_to_torch_tensors(file = f'./ncdata/cpc-{year}-precip.nc', out_dir=f'./tensordata-{var}-{steps}', 
-			# 							steps=steps, region=region)
+			if 'erai' in datasets:
+				erai_to_torch_tensors(file=f'../ncdata/erai-{year}-{var}.nc', out_dir=f'../tensordata-{var}-{steps}', 
+									  var=var, steps=steps, region=region)
+			if 'cpc' in datasets:
+				cpc_precip_to_torch_tensors(file = f'../ncdata/cpc-{year}-precip.nc', out_dir=f'./tensordata-{var}-{steps}', 
+											steps=steps, region=region)
