@@ -1,4 +1,4 @@
-# Downscaling Project
+# Conditioned Spatial Downscaling of Climate Variables
 
 ### Requirements and Setup
 Necessary python packages can be found in environment.yaml and installed with conda directly. 
